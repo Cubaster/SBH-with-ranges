@@ -66,6 +66,7 @@ class Generator:
 
 
 if __name__ == "__main__":
-    generator = Generator(20, 4)
+    generator = Generator(3, 4)
     generator.generateSequence()
     generator.getSpectrum()
+
