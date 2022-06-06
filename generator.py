@@ -31,7 +31,7 @@ class Generator:
         self.sequence = ''
 
     def generateSequence(self):
-        # generate sequence by adding randomly alphabet elements
+        # generate sequence by adding random alphabet elements
 
         for i in range(self.dnaLength):
             self.sequence += self.__alphabet[randint(0, 3)]
