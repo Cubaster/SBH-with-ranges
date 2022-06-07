@@ -1,4 +1,4 @@
-from random import randint, shuffle
+from random import randint, shuffle, choices
 
 
 class Generator:
@@ -72,16 +72,21 @@ class Generator:
 
     def _addToDict(self, oligo, position):
         """
-        add oligonucleotides to dictionary
+         add oligonucleotides to dictionary and append its lower and upper range to flat list
+        e.g. [2, 4, 67, 81] lowers: 2, 67 uppers: 4, 81
 
         :param oligo: oligonucleotide
         :param position: oligonucleotide exact position in DNA sequence
         """
         if oligo not in self.oligoDict:
             self.oligoDict[oligo] = []
-            self.oligoDict[oligo].append(self._getRange(position))
+            low, high = self._getRange(position)
+            self.oligoDict[oligo].append(low)
+            self.oligoDict[oligo].append(high)
         else:
-            self.oligoDict[oligo].append(self._getRange(position))
+            low, high = self._getRange(position)
+            self.oligoDict[oligo].append(low)
+            self.oligoDict[oligo].append(high)
 
     def getSpectrum(self):
         """
@@ -123,11 +128,10 @@ class Generator:
                 oligonucleotide += self._alphabet[randint(0, 3)]
             self._addToDict(oligonucleotide, randint(0, self.dnaLength))
 
-
-# TODO remove __main__ statement after class validation and verification
+    # TODO remove __main__ statement after class validation and verification
 
 
 if __name__ == "__main__":
-    generator = Generator(70, 3, 0.1, True)
+    generator = Generator(70, 3, 0.1)
     generator.generateSequence()
-    print(len(generator.oligoDict))
+
