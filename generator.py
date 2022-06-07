@@ -27,6 +27,7 @@ class Generator:
 
     def __init__(self, n: int, k: int, percent: float, positive=False):
         """
+        generator initialization
 
         :param n: DNA sequence length
         :param k: oligonucleotide length
@@ -85,6 +86,7 @@ class Generator:
     def getSpectrum(self):
         """
         shuffle oligonucleotides dictionary keys
+
         :return: set of dictionary keys (oligonucleotides)
         """
         #
@@ -95,6 +97,7 @@ class Generator:
 
     def _getRange(self, position):
         """
+        generate range in which oligonucleotide should be placed during reconstruction
 
         :param position: exact position of nucleotide in DNA sequence
         :return: range in which oligonucleotide should be placed during reconstruction
