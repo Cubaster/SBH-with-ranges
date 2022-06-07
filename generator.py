@@ -2,31 +2,37 @@ from random import randint, shuffle
 
 
 class Generator:
-    # Class generates n-length sequence of nitrogenous bases, divides sequence in k-length oligonucleotides
-    # and shuffles them to create spectrum
+    """
+    Class generates n-length sequence of nitrogenous bases, divides sequence in k-length oligonucleotides
+    and shuffles them to create spectrum
 
-    # ___ATTRIBUTES___
-    # self.dnaLength - DNA sequence length
-    # self.oligoLength - oligonucleotide length
-    # self.oligoDict - dictionary holds number of oligonucleotides occurrence
-    # self.starter - first oligonucleotide in sequence
-    # self.percent - percent of sequence which extends range of oligonucleotide position
-    # self._alphabet - holds nitrogenous bases: A - adenine, C - cytosine, G - guanine, T- thymine
-    # self.sequence - DNA generated sequence
-    # self.positive - generating positive mistakes
+    ___ATTRIBUTES___
+    self.dnaLength - DNA sequence length
+    self.oligoLength - oligonucleotide length
+    self.oligoDict - dictionary holds number of oligonucleotides occurrence
+    self.starter - first oligonucleotide in sequence
+    self.percent - percent of sequence which extends range of oligonucleotide position
+    self._alphabet - holds nitrogenous bases: A - adenine, C - cytosine, G - guanine, T- thymine
+    self.sequence - DNA generated sequence
+    self.positive - generating positive mistakes
 
-    # ___METHODS___
-    # generateSequence(self) - generate DNA sequence
-    # _getOligonucleotides(self) - create oligonucleotides from sequence
-    # getSpectrum(self) - returns spectrum (shuffled oligonucleotides)
-    # _getRange(self, position) - return range in which oligonucleotide is stored
+     ___METHODS___
+    generateSequence(self) - generate DNA sequence
+    _getOligonucleotides(self) - create oligonucleotides from sequence
+    getSpectrum(self) - returns spectrum (shuffled oligonucleotides)
+    _getRange(self, position) - return range in which oligonucleotide is stored
+    _addToDict - add oligonucleotides(ranges) to dictionary
+    _generatePositive(self) - generate positive instances (not existing oligonucleotides)
+    """
 
     def __init__(self, n: int, k: int, percent: float, positive=False):
-        # ___PARAMS___
-        # n - DNA sequence length
-        # k - oligonucleotide length
-        # percent - percent of extra range to basic position
-        # positive - decides whether generate positive mistakes or not
+        """
+
+        :param n: DNA sequence length
+        :param k: oligonucleotide length
+        :param percent: percent of extra range to basic position
+        :param positive: flag decides whether generate positive mistakes
+        """
 
         self.dnaLength = n
         self.oligoLength = k
@@ -38,19 +44,21 @@ class Generator:
         self.positive = positive
 
     def generateSequence(self):
-        # generate sequence by adding random alphabet elements
+        """
+        generate sequence by adding random alphabet elements
+        """
 
         for i in range(self.dnaLength):
             self.sequence += self._alphabet[randint(0, 3)]
         self._getOligonucleotides()
 
     def _getOligonucleotides(self):
-        # create oligonucleotides from sequence
-        # saves first oligonucleotide as starter
-        # adds oligonucleotides to dictionary and counts oligos occurrence
+        """
+        create oligonucleotides from sequence
+        saves first oligonucleotide as starter
 
-        # ___Variables___
-        # oligo - oligonucleotide is k-length substring of DNA sequence
+        :parameter oligo: oligonucleotide is k-length substring of DNA sequence
+        """
 
         for i in range(self.dnaLength - self.oligoLength + 1):
             oligo = self.sequence[i:self.oligoLength + i]
@@ -62,6 +70,12 @@ class Generator:
             self._generatePositive()
 
     def _addToDict(self, oligo, position):
+        """
+        add oligonucleotides to dictionary
+
+        :param oligo: oligonucleotide
+        :param position: oligonucleotide exact position in DNA sequence
+        """
         if oligo not in self.oligoDict:
             self.oligoDict[oligo] = []
             self.oligoDict[oligo].append(self._getRange(position))
@@ -69,13 +83,22 @@ class Generator:
             self.oligoDict[oligo].append(self._getRange(position))
 
     def getSpectrum(self):
-        # returns shuffled oligonucleotides
+        """
+        shuffle oligonucleotides dictionary keys
+        :return: set of dictionary keys (oligonucleotides)
+        """
+        #
 
         spectrum = list(self.oligoDict.keys())
         shuffle(spectrum)
         return spectrum
 
     def _getRange(self, position):
+        """
+
+        :param position: exact position of nucleotide in DNA sequence
+        :return: range in which oligonucleotide should be placed during reconstruction
+        """
         lowerRange = position - randint(0, int(self.dnaLength * self.percent))
         if lowerRange < 0:
             lowerRange = 0
@@ -86,6 +109,10 @@ class Generator:
         return oligoRange
 
     def _generatePositive(self):
+        """
+        create and add to dict artificial instances on nucleotides
+        active when :param: positive is set to True
+        """
         iterations = int(self.dnaLength * 0.1)
         for iteration in range(iterations):
             oligonucleotide = ''
