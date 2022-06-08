@@ -1,4 +1,3 @@
-
 def customDistance(oligo1: str, oligo2: str):
     """
     return index no. at which oligo1 substring is identical with oligo2 substring - further interpreted as weight
@@ -38,5 +37,45 @@ def createTranslation(oligonucleotides: list):
     return translation
 
 
+def generatePheromonesMatrix(size: int):
+    """
+    Create and initialize pheromones map to 0's
+    :param size: size of sequence
+    :return: pheromones map
+    """
+    pheromones_map = [[0 for _ in range(size)] for _ in range(size)]
+    return pheromones_map
 
+
+def generateWeightsMatrix(size: int, spectrum: list):
+    """
+    generate weights matrix base on oligonucleotides distance
+
+    :param spectrum: list of nucleotide names
+    :param size: size of sequence
+    :return: weights matrix
+    """
+
+    weightsMatrix = [[0 for _ in range(size)] for _ in range(size)]
+    length = len(spectrum)
+    for i in range(length):
+        for j in range(length):
+            weightsMatrix[i][j] = customDistance(spectrum[i], spectrum[j])
+    return weightsMatrix
+
+
+def mergeSolution(solution: list, oligonucleotide_size: int):
+    """
+    Concatenate oligonucleotides in one sequence
+
+    :param solution: solution created after ant journey
+    :param oligonucleotide_size: oligonucleotide size
+    :return: DNA sequence
+    """
+    result = solution[0]
+    while len(solution) != 1:
+        dist = customDistance(solution[0], solution[1])
+        result += solution[1][oligonucleotide_size - dist: oligonucleotide_size]
+        solution.remove(solution[0])
+    return result
 
