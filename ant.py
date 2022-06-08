@@ -6,7 +6,7 @@ from random import choice, choices
 # (Thread)
 class Ant:
     def __init__(self, starting_point: str, nodes: list, weights: list, translations: dict, pheromones_map: list,
-                 ranges_dict: dict, sequenceLength: int, alpha, first_attempt=False):
+                 ranges_dict: dict, sequenceLength: int, alpha: float, first_attempt=False):
         """
         initialize ant graph traverse
 
@@ -24,7 +24,7 @@ class Ant:
         :parameter stop_walk: flag indicating if traversal is finished
         :parameter sequence_cover: sum of weights during traversal if reaches limit (value of DNA length) ant stops
         """
-        # Thread.__init__(self)
+        #Thread.__init__(self)
 
         self.sequenceLength = sequenceLength
         self.starting_point = starting_point
@@ -35,6 +35,7 @@ class Ant:
         self.pheromones_map = pheromones_map
         self.ranges = ranges_dict
         self.first_attempt = first_attempt
+        self.alpha = alpha
         self.route = []
         self.sequence_cover = 0
 
@@ -42,10 +43,12 @@ class Ant:
         """
         ant perform actions as long as sequence_cover condition is not met
         """
-
-        while self.sequence_cover <= self.sequenceLength:
+        self._updatePath(self.starting_point)
+        while self.sequence_cover < self.sequenceLength:
             moveTo = self._choosePath()
             self._move(moveTo)
+
+        return self.route, self.pheromones_map
 
     def _verifyPath(self, node):
         """
@@ -54,6 +57,7 @@ class Ant:
         :param node: oligonucleotide name e.g. "ATCGAT"
         :return: flag indicating if node can be chosen
         """
+
         for counter in range(0, len(self.ranges[node]), 2):
             if self.ranges[node][counter] <= self.sequence_cover <= self.ranges[node][counter + 1]:
                 self.ranges[node].remove(self.ranges[node][counter + 1])
@@ -61,7 +65,14 @@ class Ant:
                 return True, node
         return False, node
 
-    @property
+    def _getWeights(self):
+        base_list = self.pheromones_map[self.translations[self.current_location]]
+        index_list = [self.translations[element] for element in self.nodes]
+        final_list = []
+        for index in index_list:
+            final_list.append(base_list[index])
+        return final_list
+
     def _choosePath(self):
         """
         During first attempt algorithm search for node to which ant can go at random
@@ -79,12 +90,20 @@ class Ant:
         node = None
         alreadyChecked = []
         go = False
+        counter = 0
+
         if self.first_attempt:
             while not go:
-                go, node = self._verifyPath(choice(self.nodes))
+                oligonucleotide = choice(self.nodes)
+                if oligonucleotide not in alreadyChecked:
+                    go, node = self._verifyPath(oligonucleotide)
+                    alreadyChecked.append(node)
+                if counter > 3 * self.sequenceLength:
+                    return oligonucleotide
+                counter += 1
             return node
 
-        pheromonesForCurrentNode = self.pheromones_map[self.translations[self.current_location]]
+        pheromonesForCurrentNode = self._getWeights()
         while not go:
             [oligonucleotide] = choices(self.nodes, pheromonesForCurrentNode)
             if oligonucleotide not in alreadyChecked:
@@ -100,14 +119,26 @@ class Ant:
         """
         self.route.append(moveTo)
         if not self.ranges[moveTo]:
-            self.nodes.remove(moveTo)
+            if moveTo in self.nodes:
+                self.nodes.remove(moveTo)
+            else:
+                print("positive")
 
     def _updateSequence(self, moveTo):
+        """
+        Update sequence cover base on distance between nodes and mark path with pheromones
+        :param moveTo: chosen oligonucleotide
+        """
         self.sequence_cover += self.weights[self.translations[self.current_location]][self.translations[moveTo]]
+        self.pheromones_map[self.translations[self.current_location]][self.translations[moveTo]] += self.alpha
 
     def _move(self, moveTo):
+        """
+        Perform general ant movement action
+
+        :param moveTo: chosen oligonucleotide
+        """
         self._updatePath(moveTo)
         self._updateSequence(moveTo)
         self.current_location = moveTo
-
 
