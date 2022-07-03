@@ -43,7 +43,7 @@ def generatePheromonesMatrix(size: int):
     :param size: size of sequence
     :return: pheromones map
     """
-    pheromones_map = [[0 for _ in range(size)] for _ in range(size)]
+    pheromones_map = [[1 for _ in range(size)] for _ in range(size)]
     return pheromones_map
 
 

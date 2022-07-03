@@ -4,8 +4,9 @@ from utilities import generatePheromonesMatrix, generateWeightsMatrix, createTra
 from copy import deepcopy
 
 
+
 class AntColony:
-    def __init__(self, ant_count: int = 50, alpha: float = 0.125, evaporation_coefficient: float = 0.4,
+    def __init__(self, ant_count: int = 50, alpha: int = 12, evaporation_coefficient: float = 0.4,
                  iterations: int = 80, sequence_length: int = 500, oligo_size: int = 9, percent: float = 0.05):
         self.percent = percent
         self.oligo_size = oligo_size
@@ -39,22 +40,30 @@ class AntColony:
         self.translation = createTranslation(self.initial_solution)
         self.pheromones_map = generatePheromonesMatrix(self.sequence_length)
 
+    def _createAnt(self, firstAttempt: bool):
+        starer = self.starter
+        initial_solution = deepcopy(self.initial_solution)
+        weights = deepcopy(self.weights)
+        translation = self.translation
+        pheromones_map = deepcopy(self.pheromones_map)
+        ranges = deepcopy(self.ranges)
+        sequence_length = self.sequence_length
+        alpha = self.alpha
+        ant = Ant(starer, initial_solution, weights, translation, pheromones_map, ranges, sequence_length, alpha, firstAttempt)
+        return ant
+
     def _init_ants(self):
 
         ant_list = []
         if self.first_attempt:
             self.first_attempt = False
             for ant in range(self.ant_count):
-                new_ant = deepcopy(
-                    Ant(self.starter, self.initial_solution, self.weights, self.translation, self.pheromones_map,
-                        self.ranges, self.sequence_length, self.alpha, True))
+                new_ant = self._createAnt(True)
                 ant_list.append(new_ant)
             return ant_list
 
         for ant in range(self.ant_count):
-            new_ant = deepcopy(
-                Ant(self.starter, self.initial_solution, self.weights, self.translation, self.pheromones_map,
-                    self.ranges, self.sequence_length, self.alpha))
+            new_ant = self._createAnt(False)
             ant_list.append(new_ant)
         return ant_list
 
@@ -62,7 +71,10 @@ class AntColony:
         for pheromones_map in pheromones_maps:
             for i in range(self.sequence_length):
                 for j in range(self.sequence_length):
-                    self.pheromones_map[i][j] += pheromones_map[i][j]
+                    if self.pheromones_map[i][j] > 100:
+                        self.pheromones_map[i][j] = 100
+                    else:
+                        self.pheromones_map[i][j] += pheromones_map[i][j]
 
         for i in range(self.sequence_length):
             for j in range(self.sequence_length):
@@ -80,8 +92,8 @@ class AntColony:
         for iteration in range(self.iterations):
             print(f"iteration {iteration}")
             pheromones_maps = []
+            print(pheromones_maps)
             for ant in self.ants:
-                print(ant.ranges)
                 solution, pheromones_map = ant.run()
                 pheromones_maps.append(pheromones_map)
                 self._bestSolution(solution)

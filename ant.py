@@ -1,3 +1,4 @@
+from copy import deepcopy
 from threading import Thread
 from random import choice, choices
 
@@ -65,9 +66,9 @@ class Ant:
                 return True, node
         return False, node
 
-    def _getWeights(self):
+    def _getWeights(self, nodes: list):
         base_list = self.pheromones_map[self.translations[self.current_location]]
-        index_list = [self.translations[element] for element in self.nodes]
+        index_list = [self.translations[element] for element in nodes]
         final_list = []
         for index in index_list:
             final_list.append(base_list[index])
@@ -91,6 +92,7 @@ class Ant:
         alreadyChecked = []
         go = False
         counter = 0
+        nodes = deepcopy(self.nodes)
 
         if self.first_attempt:
             while not go:
@@ -98,17 +100,17 @@ class Ant:
                 if oligonucleotide not in alreadyChecked:
                     go, node = self._verifyPath(oligonucleotide)
                     alreadyChecked.append(node)
-                if counter > 3 * self.sequenceLength:
-                    return oligonucleotide
-                counter += 1
             return node
 
-        pheromonesForCurrentNode = self._getWeights()
+        pheromonesForCurrentNode = self._getWeights(nodes)
         while not go:
-            [oligonucleotide] = choices(self.nodes, pheromonesForCurrentNode)
+            [oligonucleotide] = choices(nodes, cum_weights=pheromonesForCurrentNode, k=1)
             if oligonucleotide not in alreadyChecked:
                 go, node = self._verifyPath(oligonucleotide)
                 alreadyChecked.append(node)
+            if counter > 3 * self.sequenceLength:
+                return oligonucleotide
+            counter += 1
         return node
 
     def _updatePath(self, moveTo):
