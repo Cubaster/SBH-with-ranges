@@ -43,7 +43,7 @@ def generatePheromonesMatrix(size: int):
     :param size: size of sequence
     :return: pheromones map
     """
-    pheromones_map = [[1 for _ in range(size)] for _ in range(size)]
+    pheromones_map = [[0.1 for _ in range(size)] for _ in range(size)]
     return pheromones_map
 
 
@@ -75,7 +75,8 @@ def mergeSolution(solution: list, oligonucleotide_size: int):
     result = solution[0]
     while len(solution) != 1:
         dist = customDistance(solution[0], solution[1])
-        result += solution[1][oligonucleotide_size - dist: oligonucleotide_size]
+        tmp = solution[1][oligonucleotide_size - dist: oligonucleotide_size]
+        result += tmp
         solution.remove(solution[0])
     return result
 
