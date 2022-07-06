@@ -1,3 +1,7 @@
+from asyncio.windows_events import NULL
+from distutils.log import error
+
+
 def customDistance(oligo1: str, oligo2: str):
     """
     return index no. at which oligo1 substring is identical with oligo2 substring - further interpreted as weight
@@ -80,3 +84,39 @@ def mergeSolution(solution: list, oligonucleotide_size: int):
         solution.remove(solution[0])
     return result
 
+
+def levenshteinDistance(string1 : str, string2 : str):
+    """
+    Calculate Levenstein disance  difference between two strings.  
+    Implementation of http://web.archive.org/web/20120526085419/http://www.merriampark.com/ldjava.htm
+
+    :param string1: first string  
+    :param string2: second string
+    :return: numerical difference between strings
+    """
+    if string1 == NULL or string2 == NULL:
+        error("Invalid parameters")
+    
+    n = len(string1); m = len(string2)
+
+    if  m == 0:
+        return n
+    elif n == 0:
+        return m
+
+    prevCost = []; cost = [] 
+   
+    for i in range(n+1):
+        prevCost.append(i)
+        cost.append(0)
+ 
+    for j in range(1, m + 1):
+        string2_char = string2[j - 1]
+        cost[0] = j 
+        for i in range(1, n+1):
+            value = 0 if string1[i-1] == string2_char else 1
+            cost[i] = min(cost[i - 1] + 1, prevCost[i] + 1, prevCost[i - 1] + value) 
+        prevCost, cost = cost, prevCost
+
+    return prevCost[n]
+    

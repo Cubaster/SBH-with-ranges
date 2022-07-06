@@ -156,32 +156,26 @@ class Ant:
         self._updateSequence(moveTo)
         self.current_location = moveTo
         
-def newSpectrum(spectrum: list):
-    return deepcopy(spectrum)
-
-def newRanges(ranges: dict):
-    return deepcopy(ranges)
-
-if __name__ == "__main__":
-    sequence_length = 70
-    oligonucleotide_lenght = 4
-    generator = Generator(sequence_length, oligonucleotide_lenght, 0.4)
-    generator.generateSequence()
-    spectrum = generator.getSpectrum()
-    print(generator.sequence)
-    print(spectrum)
-    weights = generateWeightsMatrix(70, spectrum)
-    translation = createTranslation(spectrum)
-    phermones = generatePheromonesMatrix(70)
-    ranges = generator.oligoDict
-    print(generator.oligoDict)
-    ant0 = Ant(generator.starter, newSpectrum(spectrum), weights, translation, phermones, newRanges(ranges), sequence_length, 0.25, True)
-    ant1 = Ant(generator.starter, newSpectrum(spectrum), weights, translation, phermones, newRanges(ranges), sequence_length, 0.25)
-    ant2 = Ant(generator.starter, newSpectrum(spectrum), weights, translation, phermones, newRanges(ranges), sequence_length, 0.25)
-    ants = [ant0, ant1, ant2]
-    for i in range(3):
-        print(f"Run {i}")
-        route, _ = ants[i].run()
-        print(ants[i].nodes)
-        print(route)
-        print(mergeSolution(route, oligonucleotide_lenght))
+# if __name__ == "__main__":
+#     sequence_length = 70
+#     oligonucleotide_lenght = 4
+#     generator = Generator(sequence_length, oligonucleotide_lenght, 0.4)
+#     generator.generateSequence()
+#     spectrum = generator.getSpectrum()
+#     #print(generator.sequence)
+#     #print(spectrum)
+#     weights = generateWeightsMatrix(70, spectrum)
+#     translation = createTranslation(spectrum)
+#     phermones = generatePheromonesMatrix(70)
+#     ranges = generator.oligoDict
+#     #print(generator.oligoDict)
+#     # ant0 = Ant(generator.starter, newSpectrum(spectrum), weights, translation, phermones, newRanges(ranges), sequence_length, 0.25, True)
+#     # ant1 = Ant(generator.starter, newSpectrum(spectrum), weights, translation, phermones, newRanges(ranges), sequence_length, 0.25)
+#     # ant2 = Ant(generator.starter, newSpectrum(spectrum), weights, translation, phermones, newRanges(ranges), sequence_length, 0.25)
+#     # ants = [ant0, ant1, ant2]
+#     # for i in range(3):
+#     #     print(f"Run {i}")
+#     #     route, _ = ants[i].run()
+#     #     print(ants[i].nodes)
+#     #     print(route)
+#     #     print(mergeSolution(route, oligonucleotide_lenght))

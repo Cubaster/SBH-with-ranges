@@ -1,6 +1,8 @@
+from msilib import sequence
+from unittest import result
 from generator import Generator
 from ant import Ant
-from utilities import generatePheromonesMatrix, generateWeightsMatrix, createTranslation, mergeSolution
+from utilities import generatePheromonesMatrix, generateWeightsMatrix, createTranslation, mergeSolution, levenshteinDistance
 from copy import deepcopy
 
 
@@ -15,6 +17,7 @@ class AntColony:
         self.ant_count = ant_count
         self.iterations = iterations
         self.evaporation_coefficient = evaporation_coefficient
+        self.best_result = 10000000000000
         self.best_solution = None
         self.ants = None
         self.first_attempt = True
@@ -82,9 +85,14 @@ class AntColony:
 
     def _bestSolution(self, solution):
         new_solution = mergeSolution(solution, self.oligo_size)
-        print(f"solution: {self.generator.sequence}")
-        print(f"new solution: {new_solution}\n")
-
+        #print(f"solution: {self.generator.sequence}")
+        #print(f"new solution: {new_solution}\n")
+        result = levenshteinDistance(new_solution, self.generator.sequence)
+        #print(result)
+        if result < self.best_result:
+             self.best_result = result
+             self.best_solution = new_solution
+        
     def mainloop(self):
         self._initGenerator()
         self._initArea()
@@ -92,15 +100,20 @@ class AntColony:
         for iteration in range(self.iterations):
             print(f"iteration {iteration}")
             pheromones_maps = []
-            print(pheromones_maps)
+            #print(pheromones_maps)
             for ant in self.ants:
                 solution, pheromones_map = ant.run()
                 pheromones_maps.append(pheromones_map)
                 self._bestSolution(solution)
             self._updatePheromonesMap(pheromones_maps)
             self.ants = self._init_ants()
+        return self.best_solution
 
 
 if __name__ == "__main__":
-    ant_colony = AntColony(ant_count=10, iterations=20, sequence_length=200, oligo_size=5)
-    ant_colony.mainloop()
+    ant_count = 5; iterations = 10; sequence_length = 200; oligo_size = 5
+    alpha = 10; evaporation_coeff = 0.5; percent = 0.1
+    ant_colony = AntColony(ant_count = ant_count, iterations = iterations, sequence_length = sequence_length, oligo_size = oligo_size)
+    best = ant_colony.mainloop()
+    print(best)
+    print(ant_colony.best_result /2)
