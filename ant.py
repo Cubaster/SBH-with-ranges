@@ -1,6 +1,9 @@
 from copy import deepcopy
+from email import generator
 from threading import Thread
 from random import choice, choices
+from generator import Generator
+from utilities import *
 
 
 # callback_function triggers when length of path riches length od DNA sequence
@@ -63,6 +66,7 @@ class Ant:
             if self.ranges[node][counter] <= self.sequence_cover <= self.ranges[node][counter + 1]:
                 self.ranges[node].remove(self.ranges[node][counter + 1])
                 self.ranges[node].remove(self.ranges[node][counter])
+                #print("tutaj")
                 return True, node
         return False, node
 
@@ -99,14 +103,20 @@ class Ant:
                 oligonucleotide = choice(self.nodes)
                 if oligonucleotide not in alreadyChecked:
                     go, node = self._verifyPath(oligonucleotide)
+                    #print(go)
                     alreadyChecked.append(node)
             return node
 
         pheromonesForCurrentNode = self._getWeights(nodes)
+        # print(pheromonesForCurrentNode)
         while not go:
-            [oligonucleotide] = choices(nodes, cum_weights=pheromonesForCurrentNode, k=1)
+            [oligonucleotide] = choices(nodes, weights=pheromonesForCurrentNode, k=1)
+            #print(oligonucleotide)
             if oligonucleotide not in alreadyChecked:
+                #print(oligonucleotide)
+                #print(alreadyChecked)
                 go, node = self._verifyPath(oligonucleotide)
+                #print(go)
                 alreadyChecked.append(node)
             if counter > 3 * self.sequenceLength:
                 return oligonucleotide
@@ -125,6 +135,7 @@ class Ant:
                 self.nodes.remove(moveTo)
             else:
                 print("positive")
+        #print(self.ranges)
 
     def _updateSequence(self, moveTo):
         """
@@ -132,6 +143,7 @@ class Ant:
         :param moveTo: chosen oligonucleotide
         """
         self.sequence_cover += self.weights[self.translations[self.current_location]][self.translations[moveTo]]
+        # print(self.sequence_cover)
         self.pheromones_map[self.translations[self.current_location]][self.translations[moveTo]] += self.alpha
 
     def _move(self, moveTo):
@@ -143,4 +155,27 @@ class Ant:
         self._updatePath(moveTo)
         self._updateSequence(moveTo)
         self.current_location = moveTo
-
+        
+# if __name__ == "__main__":
+#     sequence_length = 70
+#     oligonucleotide_lenght = 4
+#     generator = Generator(sequence_length, oligonucleotide_lenght, 0.4)
+#     generator.generateSequence()
+#     spectrum = generator.getSpectrum()
+#     #print(generator.sequence)
+#     #print(spectrum)
+#     weights = generateWeightsMatrix(70, spectrum)
+#     translation = createTranslation(spectrum)
+#     phermones = generatePheromonesMatrix(70)
+#     ranges = generator.oligoDict
+#     #print(generator.oligoDict)
+#     # ant0 = Ant(generator.starter, newSpectrum(spectrum), weights, translation, phermones, newRanges(ranges), sequence_length, 0.25, True)
+#     # ant1 = Ant(generator.starter, newSpectrum(spectrum), weights, translation, phermones, newRanges(ranges), sequence_length, 0.25)
+#     # ant2 = Ant(generator.starter, newSpectrum(spectrum), weights, translation, phermones, newRanges(ranges), sequence_length, 0.25)
+#     # ants = [ant0, ant1, ant2]
+#     # for i in range(3):
+#     #     print(f"Run {i}")
+#     #     route, _ = ants[i].run()
+#     #     print(ants[i].nodes)
+#     #     print(route)
+#     #     print(mergeSolution(route, oligonucleotide_lenght))

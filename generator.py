@@ -130,8 +130,8 @@ class Generator:
 
     # TODO remove __main__ statement after class validation and verification
 
-
 if __name__ == "__main__":
-    generator = Generator(70, 3, 0.1)
+    generator = Generator(70, 3, 0.1, True)
     generator.generateSequence()
-
+    # print(generator.sequence)
+    #print(generator.getSpectrum())
