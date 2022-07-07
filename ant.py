@@ -4,6 +4,7 @@ from threading import Thread
 from random import choice, choices
 from generator import Generator
 from utilities import *
+from time import sleep
 
 
 # callback_function triggers when length of path riches length od DNA sequence
@@ -47,7 +48,8 @@ class Ant:
         """
         ant perform actions as long as sequence_cover condition is not met
         """
-        self._updatePath(self.starting_point)
+        #self._updatePath(self.starting_point)
+        self._move(self.starting_point)
         while self.sequence_cover < self.sequenceLength:
             moveTo = self._choosePath()
             self._move(moveTo)
@@ -63,10 +65,13 @@ class Ant:
         """
 
         for counter in range(0, len(self.ranges[node]), 2):
+            # print(f"sequence cover: {self.sequence_cover}")
+            # print(f"range: {self.ranges[node][counter]} {self.ranges[node][counter+1]}")
+            # print(self.ranges[node][counter] <= self.sequence_cover <= self.ranges[node][counter + 1])
             if self.ranges[node][counter] <= self.sequence_cover <= self.ranges[node][counter + 1]:
                 self.ranges[node].remove(self.ranges[node][counter + 1])
                 self.ranges[node].remove(self.ranges[node][counter])
-                #print("tutaj")
+                # print("tutaj")
                 return True, node
         return False, node
 
@@ -79,6 +84,7 @@ class Ant:
         return final_list
 
     def _choosePath(self):
+        # print("boom!")
         """
         During first attempt algorithm search for node to which ant can go at random
 
@@ -99,26 +105,34 @@ class Ant:
         nodes = deepcopy(self.nodes)
 
         if self.first_attempt:
+            # print("first")
             while not go:
+                #sleep(1)
                 oligonucleotide = choice(self.nodes)
+                #print(self.nodes)
+                # print(oligonucleotide)
+                # print(self.ranges)
+                # print(alreadyChecked)
                 if oligonucleotide not in alreadyChecked:
                     go, node = self._verifyPath(oligonucleotide)
                     #print(go)
                     alreadyChecked.append(node)
+                    
             return node
-
+        #print(f"cover after: {self.sequence_cover}")
         pheromonesForCurrentNode = self._getWeights(nodes)
         # print(pheromonesForCurrentNode)
         while not go:
+            #print("second")
             [oligonucleotide] = choices(nodes, weights=pheromonesForCurrentNode, k=1)
-            #print(oligonucleotide)
+            # print(oligonucleotide)
             if oligonucleotide not in alreadyChecked:
-                #print(oligonucleotide)
-                #print(alreadyChecked)
+                # print(oligonucleotide)
+                # print(alreadyChecked)
                 go, node = self._verifyPath(oligonucleotide)
                 #print(go)
                 alreadyChecked.append(node)
-            if counter > 3 * self.sequenceLength:
+            if counter > self.sequenceLength:
                 return oligonucleotide
             counter += 1
         return node
