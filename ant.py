@@ -1,6 +1,4 @@
 from copy import deepcopy
-from email import generator
-from threading import Thread
 from random import choice, choices
 from generator import Generator
 from utilities import *
@@ -10,7 +8,7 @@ from utilities import *
 # (Thread)
 class Ant:
     def __init__(self, starting_point: str, nodes: list, weights: list, translations: dict, pheromones_map: list,
-                 ranges_dict: dict, sequenceLength: int, alpha: float, first_attempt=False):
+                 ranges_dict: dict, sequenceLength: int, alpha: float, oligo_size: int, first_attempt=False):
         """
         initialize ant graph traverse
 
@@ -22,14 +20,16 @@ class Ant:
         :param pheromones_map: pheromone trace to change choice probability e.g. [[0,0,0.1][0,0.2,0][1,0.5,0.2]]
         :param ranges_dict: holds ranges defining when some node should be visited e.g{"ACT": [0, 3, 7, 13], "AGT": [4, 7]}
         :param alpha: pheromone rate
+        :param oligo_size: oligonucleotide size
         :param first_attempt: when true random choices are enabled
 
         :parameter route: store visited nodes
         :parameter stop_walk: flag indicating if traversal is finished
         :parameter sequence_cover: sum of weights during traversal if reaches limit (value of DNA length) ant stops
         """
-        #Thread.__init__(self)
+        # Thread.__init__(self)
 
+        self.oligo_size = oligo_size
         self.sequenceLength = sequenceLength
         self.starting_point = starting_point
         self.current_location = starting_point
@@ -42,12 +42,14 @@ class Ant:
         self.alpha = alpha
         self.route = []
         self.sequence_cover = 0
+        self.cover_spots = []
 
     def run(self):
         """
         ant perform actions as long as sequence_cover condition is not met
         """
-        self._updatePath(self.starting_point)
+        # self._updatePath(self.starting_point)
+        self._move(self.starting_point)
         while self.sequence_cover < self.sequenceLength:
             moveTo = self._choosePath()
             self._move(moveTo)
@@ -66,7 +68,7 @@ class Ant:
             if self.ranges[node][counter] <= self.sequence_cover <= self.ranges[node][counter + 1]:
                 self.ranges[node].remove(self.ranges[node][counter + 1])
                 self.ranges[node].remove(self.ranges[node][counter])
-                #print("tutaj")
+                # print("tutaj")
                 return True, node
         return False, node
 
@@ -103,21 +105,28 @@ class Ant:
                 oligonucleotide = choice(self.nodes)
                 if oligonucleotide not in alreadyChecked:
                     go, node = self._verifyPath(oligonucleotide)
-                    #print(go)
+                    # print(go)
                     alreadyChecked.append(node)
             return node
 
         pheromonesForCurrentNode = self._getWeights(nodes)
         # print(pheromonesForCurrentNode)
         while not go:
-            [oligonucleotide] = choices(nodes, weights=pheromonesForCurrentNode, k=1)
-            #print(oligonucleotide)
-            if oligonucleotide not in alreadyChecked:
-                #print(oligonucleotide)
-                #print(alreadyChecked)
-                go, node = self._verifyPath(oligonucleotide)
-                #print(go)
-                alreadyChecked.append(node)
+            oligonucleotides = choices(nodes, weights=pheromonesForCurrentNode, k=self.oligo_size)
+            best_oligo = self.oligo_size + 1
+            oligonucleotide = ''
+            for oligos in oligonucleotides:
+                if self.weights[self.translations[self.current_location]][self.translations[oligos]] < best_oligo:
+                    best_oligo = self.weights[self.translations[self.current_location]][self.translations[oligos]]
+                    # print(f"best oligo is {oligos} with weight equals {best_oligo}")
+                    oligonucleotide = oligos
+            if best_oligo < 5:
+                if oligonucleotide not in alreadyChecked and oligonucleotide != '':
+                    # print(oligonucleotide)
+                    # print(alreadyChecked)
+                    go, node = self._verifyPath(oligonucleotide)
+                    # print(go)
+                    alreadyChecked.append(node)
             if counter > 3 * self.sequenceLength:
                 return oligonucleotide
             counter += 1
@@ -135,7 +144,7 @@ class Ant:
                 self.nodes.remove(moveTo)
             else:
                 print("positive")
-        #print(self.ranges)
+        # print(self.ranges)
 
     def _updateSequence(self, moveTo):
         """
@@ -143,8 +152,9 @@ class Ant:
         :param moveTo: chosen oligonucleotide
         """
         self.sequence_cover += self.weights[self.translations[self.current_location]][self.translations[moveTo]]
-        # print(self.sequence_cover)
+        self.cover_spots.append(self.sequence_cover)
         self.pheromones_map[self.translations[self.current_location]][self.translations[moveTo]] += self.alpha
+        # print(f"Moved to {moveTo} and set pheromones to {self.pheromones_map[self.translations[self.current_location]][self.translations[moveTo]]}")
 
     def _move(self, moveTo):
         """
@@ -155,7 +165,7 @@ class Ant:
         self._updatePath(moveTo)
         self._updateSequence(moveTo)
         self.current_location = moveTo
-        
+
 # if __name__ == "__main__":
 #     sequence_length = 70
 #     oligonucleotide_lenght = 4

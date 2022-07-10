@@ -1,4 +1,4 @@
-from random import randint, shuffle, choices
+from random import randint, shuffle
 
 
 class Generator:
@@ -127,11 +127,3 @@ class Generator:
             for base in range(self.oligoLength):
                 oligonucleotide += self._alphabet[randint(0, 3)]
             self._addToDict(oligonucleotide, randint(0, self.dnaLength))
-
-    # TODO remove __main__ statement after class validation and verification
-
-if __name__ == "__main__":
-    generator = Generator(70, 3, 0.1, True)
-    generator.generateSequence()
-    # print(generator.sequence)
-    #print(generator.getSpectrum())
