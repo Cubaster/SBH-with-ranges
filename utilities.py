@@ -131,18 +131,20 @@ def oligonucleotideComparison(initialSequence: str, resultSequence: str, oligonu
     """
     negative = []
     positive = []
+    result = []
+    initial = []
     for i in range(len(initialSequence) - oligonucleotideSize + 1):
-        negative.append(initialSequence[i:i + oligonucleotideSize])
+        initial.append(initialSequence[i:i + oligonucleotideSize])
     for j in range(len(resultSequence) - oligonucleotideSize + 1):
-        positive.append(resultSequence[j:j+oligonucleotideSize])
+        result.append(resultSequence[j:j + oligonucleotideSize])
 
-    print(f"negative {len(negative)}")
-    print(f"positive {len(positive)}")
+    for oligonucleotide in initial:
+        if oligonucleotide not in result:
+            negative.append(oligonucleotide)
 
-    for oligonucleotide in negative:
-        if oligonucleotide in positive:
-            negative.remove(oligonucleotide)
-            positive.remove(oligonucleotide)
+    for oligonucleotide in result:
+        if oligonucleotide not in initial:
+            positive.append(oligonucleotide)
 
-    print(f"negative {len(negative)}")
-    print(f"positive {len(positive)}")
+    print(f"negative {len(negative)/len(initial)}")
+    print(f"positive {len(positive)/len(initial)}")
