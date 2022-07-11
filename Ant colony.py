@@ -83,7 +83,7 @@ class AntColony:
 
     def _init_ants(self):
         """
-        Initialize ant which will be set on journey
+        Initialize ants which will be set on journey
         :return: list of ants
         """
         ant_list = []
@@ -103,16 +103,17 @@ class AntColony:
         """
         Update Pheromones rate (probability of choosing edge) after all ants return.
 
-
         :param pheromones_maps: list of pheromones maps for each ant
         """
         divide = 0
+        # find norm (biggest element for this journey)
         for pheromones_map in pheromones_maps:
             for i in range(self.sequence_length):
                 for j in range(self.sequence_length):
                     if pheromones_map[i][j] > divide:
                         divide = pheromones_map[i][j]
 
+        # trace evaporation
         for i in range(self.sequence_length):
             for j in range(self.sequence_length):
                 if self.pheromones_map[i][j] > 100:
@@ -127,11 +128,7 @@ class AntColony:
         :param solution: last sequence fount by ants
         """
         new_solution = mergeSolution(solution, self.oligo_size)
-        print(f"osolution: {self.generator.sequence}")
-        print(f"nsolution: {new_solution}\n")
         result = levenshteinDistance(new_solution, self.generator.sequence)
-        # oligonucleotideComparison(self.generator.sequence, new_solution, self.oligo_size, spots)
-        # print(result)
         if result < self.best_result:
             self.best_result = result
             self.best_solution = new_solution
@@ -153,6 +150,7 @@ class AntColony:
                 solution, pheromones_map = ant.run()
                 pheromones_maps.append(pheromones_map)
                 self._bestSolution(solution, ant.cover_spots)
+                del ant
             self._updatePheromonesMap(pheromones_maps)
             self.ants = self._init_ants()
         oligonucleotideComparison(self.generator.sequence, self.best_solution, self.oligo_size)
@@ -160,26 +158,17 @@ class AntColony:
 
 
 if __name__ == "__main__":
-    ant_count = 10
-    iterations = 5
-    sequence_length = 500
+    ant_count = 50
+    iterations = 30
+    sequence_length = 300
     oligo_size = 8
-    alpha = 5
-    evaporation_coeff = 0.4
-    percent = 0.1
-    ant_colony = AntColony(ant_count=ant_count, alpha=alpha, iterations=iterations, sequence_length=sequence_length,
-                           oligo_size=oligo_size, evaporation_coefficient=evaporation_coeff, positive=False)
+    alpha = 0.5
+    evaporation_coeff = 0.1
+    percent = 0.05
+    positive = [True, False]
+
+    ant_colony = AntColony(alpha=alpha, positive=False)
     best = ant_colony.mainloop()
     print(best)
     print(ant_colony.generator.sequence)
     print(ant_colony.best_result / sequence_length * 100)
-
-    # errors = []
-    # for _ in range(7):
-    #     ant_colony = AntColony(ant_count=ant_count, alpha=alpha, iterations=iterations, sequence_length=sequence_length,
-    #                             oligo_size=oligo_size, evaporation_coefficient=evaporation_coeff, positive=True)
-    #     best = ant_colony.mainloop()
-    #     print(best)
-    #     print(ant_colony.generator.sequence)
-    #     errors.append(ant_colony.best_result / sequence_length * 100)
-    # print(sum(errors)/len(errors))

@@ -27,7 +27,7 @@ class Generator:
 
     def __init__(self, n: int, k: int, percent: float, positive=False):
         """
-        generator initialization
+        Generator initialization
 
         :param n: DNA sequence length
         :param k: oligonucleotide length
@@ -46,7 +46,7 @@ class Generator:
 
     def generateSequence(self):
         """
-        generate sequence by adding random alphabet elements
+        Generate sequence by adding random alphabet elements - nucleotides
         """
 
         for i in range(self.dnaLength):
@@ -55,8 +55,7 @@ class Generator:
 
     def _getOligonucleotides(self):
         """
-        create oligonucleotides from sequence
-        saves first oligonucleotide as starter
+        Create oligonucleotides from sequence and saves first oligonucleotide as starter.
 
         :parameter oligo: oligonucleotide is k-length substring of DNA sequence
         """
@@ -90,11 +89,10 @@ class Generator:
 
     def getSpectrum(self):
         """
-        shuffle oligonucleotides dictionary keys
+        shuffle oligonucleotides dictionary keys.
 
         :return: set of dictionary keys (oligonucleotides)
         """
-        #
 
         spectrum = list(self.oligoDict.keys())
         shuffle(spectrum)
@@ -102,7 +100,7 @@ class Generator:
 
     def _getRange(self, position):
         """
-        generate range in which oligonucleotide should be placed during reconstruction
+        Generate range in which oligonucleotide should be placed during reconstruction.
 
         :param position: exact position of nucleotide in DNA sequence
         :return: range in which oligonucleotide should be placed during reconstruction
@@ -118,8 +116,7 @@ class Generator:
 
     def _generatePositive(self):
         """
-        create and add to dict artificial instances on nucleotides
-        active when :param: positive is set to True
+        Create and add to dict artificial instances on nucleotides active when :param: positive is set to True
         """
         iterations = int(self.dnaLength * 0.1)
         for iteration in range(iterations):
