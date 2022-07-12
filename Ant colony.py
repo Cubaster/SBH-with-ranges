@@ -6,8 +6,8 @@ from copy import deepcopy
 
 
 class AntColony:
-    def __init__(self, ant_count: int = 50, alpha: int = 5, evaporation_coefficient: float = 0.1,
-                 iterations: int = 30, sequence_length: int = 700, oligo_size: int = 8, percent: float = 0.05, positive=False):
+    def __init__(self, ant_count: int = 50, alpha: int = 2, evaporation_coefficient: float = 0.1,
+                 iterations: int = 30, sequence_length: int = 700, oligo_size: int = 8, percent: float = 0.01, positive=False):
         """
         Initialize ant colony.
 
@@ -162,12 +162,12 @@ if __name__ == "__main__":
     iterations = 30
     sequence_length = 300
     oligo_size = 8
-    alpha = 0.5
+    alpha = 10
     evaporation_coeff = 0.1
-    percent = 0.05
+    percent = 0.01
     positive = [True, False]
 
-    ant_colony = AntColony(alpha=alpha, positive=False)
+    ant_colony = AntColony(percent=percent, positive=False)
     best = ant_colony.mainloop()
     print(best)
     print(ant_colony.generator.sequence)
